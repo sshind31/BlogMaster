@@ -1,0 +1,38 @@
+.main{
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 2fr 1fr 2fr;
+}
+
+.sub-main{
+    display:grid;
+}
+
+.form{
+    display:grid;
+    justify-content: center;
+    grid-gap: 10px;
+    align-content: space-around;
+}
+
+.form-element{
+    display:grid;
+    justify-content: center;
+    grid-gap: 10px;
+    align-content: space-around;
+}
+
+.form-sub-element{
+    display: grid;
+    align-content: space-around;
+    grid-gap: 10px;
+}
+
+#header{
+    font-size: large;
+}
+
+#form{
+    background-color: #eee;
+    border: 1px solid black;
+}
