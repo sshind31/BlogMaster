@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>ContactUs</title>
+    <link th:href="@{css/reset.css}" rel="stylesheet">
+    <link th:href="@{css/login.css}" rel="stylesheet">
+    <link th:href="@{css/blog-home.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}">
+    
+</head>
+
+<body>
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">Blog Application</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">All Posts
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/signup}">Sign Up</a>
+                </li>
+                <!-- show login only if user is not yet authenticated -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+                <!-- show My Blog only if user is authenticated -->
+                <li class="nav-item" sec:authorize="hasRole('AUTHOR')">
+                    <a class="nav-link" th:href="@{/home}">My Blog</a>
+                </li>
+                <!-- show new post only if user is authenticated -->
+                <li class="nav-item" sec:authorize="hasRole('AUTHOR')">
+                    <a class="nav-link" th:href="@{/newpost}">New Post</a>
+                </li>
+                <!-- show sign out only if user is authenticated -->
+                <ul class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/logout}">Sign Out</a>
+                </ul>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<section class="main">
+    <section class="sub-main"></section>
+    <section id="form" class="sub-main">
+        <section class="form"></section>
+        <section class="form">
+            <section class="form-element"></section>
+            <section id="header" class="form-element">Login Page</section>
+            <section class="form-element"></section>
+
+            <section class="form-element">
+                <section>
+
+                </section>
+                <section>
+                    <form th:action="@{/login}" method="post">
+                </section>
+                <section>
+                    <div th:if="${param.logout}">
+                        <div class="alert alert-info">
+                            You have been logged out.
+                        </div>
+                    </div>
+                    <div th:if="${param.error}">
+                        <div class="alert alert-danger">
+                            Invalid email and password.
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section class="form-element">
+                <section class="from-sub-element"></section>
+                <section class="from-sub-element">
+                    <label for="email">Email:</label>
+                </section>
+                <section class="from-sub-element">
+                    <input name="username" id="email" placeholder="Email" type="email" required autofocus="autofocus"/>
+                </section>
+            </section>
+
+            <section class="form-element">
+                <section class="from-sub-element"></section>
+                <section class="from-sub-element">
+                    <label for="password">Password:</label>
+                </section>
+                <section class="from-sub-element">
+                    <input name="password" id="password" placeholder="Password" type="password" required autofocus="autofocus"/>
+                </section>
+            </section>
+
+            <section class="form-element">
+                <section class="from-sub-element"></section>
+                <section class="from-sub-element">
+                    <input name="submit" type="submit" value="Login" />
+                    </form>
+                </section>
+            </section>
+            <section class="form-element"></section>
+            <section class="form-element"></section>
+            <section class="form-element"></section>
+            <section class="form-element"></section>
+            <section class="form-element"></section>
+        </section>
+        <section class="form">
+        </section>
+    </section>
+    <section class="sub-main"></section>
+</section>
+
+</body>
+</html>

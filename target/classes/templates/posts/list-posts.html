@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" xmlns:sec="http://www.w3.org/1999/xhtml"
+      lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Blog Home</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}">
+
+    <!-- Custom styles for this template -->
+    <link th:href="@{css/blog-home.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">Blog Application</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">All Posts
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/signup}">Sign Up</a>
+                </li>
+                <!-- show login only if user is not yet authenticated -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+                <!-- show My Blog only if user is authenticated -->
+                <li class="nav-item" sec:authorize="hasRole('AUTHOR')">
+                    <a class="nav-link" th:href="@{/home}">My Blog</a>
+                </li>
+                <!-- show new post only if user is authenticated -->
+                <li class="nav-item" sec:authorize="hasRole('AUTHOR')">
+                    <a class="nav-link" th:href="@{/newpost}">New Post</a>
+                </li>
+                <!-- show sign out only if user is authenticated -->
+                <ul class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/logout}">Sign Out</a>
+                </ul>
+                <ul class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/admin}">Admin</a>
+                </ul>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container">
+
+    <div class="row">
+
+        <!-- Blog Entries Column -->
+        <div class="col-md-8">
+
+            <h1 class="my-4">Blog Posts
+                <small>Secondary Text</small>
+            </h1>
+
+            <!-- Blog Post -->
+            <a class="page-link" th:href="@{/newpost}" sec:authorize="isAuthenticated()"><button class="btn-info">Create Post +</button></a>
+            <div   class="card mb-4" th:each="tempPost: ${posts}">
+                <div class="card-body" >
+                    <h2 class="card-title"  th:text="${tempPost.title}"></h2>
+                    <p class="card-text" style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" th:text="${tempPost.context}"></p>
+                    <a th:href="@{${tempPost.id}}" class="btn btn-primary">Read More &rarr;</a>
+                </div>
+                <div class="card-footer text-muted">
+                    <div th:if="${tempPost.publishStatus}">
+                        <p>Posted on <a th:text="${#temporals.format(tempPost.publishedAt, 'dd-MM-yyyy')}"></a> at
+                            <a th:text="${#temporals.format(tempPost.publishedAt, 'HH:mm a')}"></a></p>
+                    </div>
+                    <!--ELSE-->
+                    <div th:unless="${tempPost.publishStatus}">
+                        <p>Updated on <a th:text="${#temporals.format(tempPost.updatedAt, 'dd-MM-yyyy')}"></a> at
+                            <a th:text="${#temporals.format(tempPost.updatedAt, 'HH:mm a')}"></a></p>
+                    </div> by
+                    <a href="#" th:text="${tempPost.author}"></a>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <ul class="pagination justify-content-center mb-4" th:if = "${totalPages > 1}">
+                <li class="page-item" th:with="prevPage=${start}-${limit}">
+                    <div th:if="${currentPage > 1}">
+                        <form method="get" action="/">
+                            <input th:if="${#request.getParameter('search') != null}" name="search" type="hidden" th:value="${#request.getParameter('search')[0]}">
+                            <div style="display: none;" class="form-check" th:each="prevTags:${param.tagId}">
+                                <input checked class="form-check-input" type="checkbox" name="tagId" th:value="${prevTags}">
+                            </div>
+                            <input th:if="${#request.getParameter('order') != null}" type="hidden" name="order" th:value="${#request.getParameter('order')}">
+                            <input th:if="${#request.getParameter('publishedStart') != null}" type="hidden" name="publishedStart" th:value="${#request.getParameter('publishedStart')[0]}">
+                            <input th:if="${#request.getParameter('publishedEnd') != null}" type="hidden" name="publishedEnd" th:value="${#request.getParameter('publishedEnd')[0]}">
+                            <div style="display: none;" class="form-check" th:each="prevAuthorId:${param.authorId}">
+                                <input checked class="form-check-input" type="checkbox" name="authorId" th:value="${prevAuthorId}">
+                            </div>
+                            <input type="hidden" name="start" th:value="${prevPage}">
+                            <input type="hidden" name="limit" th:value="${limit}">
+                            <input type="submit" class="page-link"  value="&larr; Older" >
+                        </form>
+                    </div>
+                    <a class="page-link" th:unless="${currentPage > 1}" href="#">&larr; Older</a>
+                </li>
+                <li class="page-item" th:with="nextPage=${start}+${limit}">
+                    <div th:if="${currentPage < totalPages}">
+                        <form method="get" action="/">
+                            <input th:if="${#request.getParameter('search') != null}" name="search" type="hidden" th:value="${#request.getParameter('search')[0]}">
+                            <div style="display: none;" class="form-check" th:each="prevTags:${param.tagId}">
+                                <input checked class="form-check-input" type="checkbox" name="tagId" th:value="${prevTags}">
+                            </div>
+                            <input th:if="${#request.getParameter('order') != null}" type="hidden" name="order" th:value="${#request.getParameter('order')}">
+                            <input th:if="${#request.getParameter('publishedStart') != null}" type="hidden" name="publishedStart" th:value="${#request.getParameter('publishedStart')[0]}">
+                            <input th:if="${#request.getParameter('publishedEnd') != null}" type="hidden" name="publishedEnd" th:value="${#request.getParameter('publishedEnd')[0]}">
+                            <div style="display: none;" class="form-check" th:each="prevAuthorId:${param.authorId}">
+                                <input checked class="form-check-input" type="checkbox" name="authorId" th:value="${prevAuthorId}">
+                            </div>
+                            <input type="hidden" name="start" th:value="${nextPage}">
+                            <input type="hidden" name="limit" th:value="${limit}">
+                            <input type="submit" class="page-link"  value="Newer &rarr;" >
+                        </form>
+                    </div>
+                    <a class="page-link" th:unless="${currentPage < totalPages}" href="#">Newer &rarr;</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-md-4 ">
+
+            <!-- Search Widget -->
+            <div class="card my-4">
+                <h5 class="card-header">Search</h5>
+                <div class="card-body">
+                    <div class="input-group">
+                        <form method="get" action="/">
+                            <input type="text" class="form-control" id="search" placeholder="Search for..." name="search">
+                            <span class="input-group-append">
+                                <div style="display: none;" class="form-check" th:each="prevTags:${param.tagId}">
+                                    <input checked class="form-check-input" type="checkbox" name="tagId" th:value="${prevTags}">
+                                </div>
+                                <input th:if="${#request.getParameter('order') != null}" type="hidden" name="order" th:value="${#request.getParameter('order')[0]}">
+                                <input th:if="${#request.getParameter('publishedStart') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedStart')[0]}">
+                                <input th:if="${#request.getParameter('publishedEnd') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedEnd')[0]}">
+                                <div style="display: none;" class="form-check" th:each="prevAuthorId:${param.authorId}">
+                                    <input checked class="form-check-input" type="checkbox" name="authorId" th:value="${prevAuthorId}">
+                                </div>
+                            </span>
+                            <button  type="submit" class="btn btn-secondary" id="button" >Go!</button><span/>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Widget -->
+            <div class="card my-4">
+                <h5 class="card-header">Filters</h5>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+
+                                <ul class="list-unstyled mb-0">
+                                    <li>
+
+                                        <form name="myForm" method="get" action="/">
+                                            <h5>Tags</h5>
+                                            <div class="form-check" th:each="tag:${tags}">
+                                                <input class="form-check-input" type="checkbox" name="tagId" th:value="${tag.id}" th:id="${tag.name}">
+                                                <label class="form-check-label" th:for="${tag.name}" th:text="${tag.name}"></label>
+                                            </div>
+                                            <!--<input th:if="${#request.getParameter('start') != null}" type="hidden" name="start" th:value="${start}">
+                                            <input th:if="${#request.getParameter('limit') != null}" type="hidden" name="limit" th:value="${limit}">-->
+                                            <input th:if="${#request.getParameter('search') != null}" name="search" type="hidden" th:value="${#request.getParameter('search')[0]}">
+                                            <input th:if="${#request.getParameter('order') != null}" type="hidden" name="order" th:value="${#request.getParameter('order')[0]}">
+                                            <input th:if="${#request.getParameter('publishedStart') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedStart')[0]}">
+                                            <input th:if="${#request.getParameter('publishedEnd') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedEnd')[0]}">
+                                            <div style="display: none;" class="form-check" th:each="prevAuthorId:${param.authorId}">
+                                                <input checked class="form-check-input" type="checkbox" name="authorId" th:value="${prevAuthorId}">
+                                            </div>
+                                            <input class="btn-save btn btn-danger btn-sm" value="submit" type="submit">
+                                        </form>
+
+
+                                    </li>
+                                    <li th:if="${#request.getParameter('authorId')}">
+                                        <form method="get" action="/">
+                                            <h3>Author</h3>
+                                            <div class="form-check" th:each="user:${users}">
+                                                <input class="form-check-input" type="checkbox" name="authorId" th:value="${user.id}" th:id="${user.name}">
+                                                <label class="form-check-label" th:for="${user.name}" th:text="${user.name}"></label>
+                                            </div>
+                                            <!--<input th:if="${#request.getParameter('start') != null}" type="hidden" name="start" th:value="${start}">
+                                            <input th:if="${#request.getParameter('limit') != null}" type="hidden" name="limit" th:value="${limit}">-->
+                                            <input th:if="${#request.getParameter('search') != null}" name="search" type="hidden" th:value="${#request.getParameter('search')[0]}">
+                                            <div style="display: none;" class="form-check" th:each="prevTags:${param.tagId}">
+                                                <input checked class="form-check-input" type="checkbox" name="tagId" th:value="${prevTags}">
+                                            </div>
+                                            <input th:if="${#request.getParameter('order') != null}" type="hidden" name="order" th:value="${#request.getParameter('order')[0]}">
+                                            <input th:if="${#request.getParameter('publishedStart') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedStart')[0]}">
+                                            <input th:if="${#request.getParameter('publishedEnd') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedEnd')[0]}">
+
+                                            <input class="btn-save btn btn-danger btn-sm" value="submit" type="submit">
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form method="get" action="/">
+                                            <label for="publishedStart">Start Date:</label>
+                                            <input type="date" name="publishedStart" id="publishedStart"><br>
+                                            <label for="publishedEnd">End Date:</label>
+                                            <input type="date" name="publishedEnd" id="publishedEnd">
+                                            <!--<input th:if="${#request.getParameter('start') != null}" type="hidden" name="start" th:value="${start}">
+                                            <input th:if="${#request.getParameter('limit') != null}" type="hidden" name="limit" th:value="${limit}">-->
+                                            <input th:if="${#request.getParameter('search') != null}" name="search" type="hidden" th:value="${#request.getParameter('search')[0]}">
+                                            <div style="display: none;" class="form-check" th:each="prevTags:${param.tagId}">
+                                                <input checked class="form-check-input" type="checkbox" name="tagId" th:value="${prevTags}">
+                                            </div>
+                                            <input th:if="${#request.getParameter('order') != null}" type="hidden" name="order" th:value="${#request.getParameter('order')[0]}">
+                                            <div style="display: none;" class="form-check" th:each="prevAuthorId:${param.authorId}">
+                                                <input checked class="form-check-input" type="checkbox" name="authorId" th:value="${prevAuthorId}">
+                                            </div>
+                                            <input class="btn-save btn btn-danger btn-sm" value="submit" type="submit">
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form method="get" action="/">
+                                            <label for="order">Sort By Date:</label>
+                                            <select id="order" name="order" >
+                                                <option selected>Select</option>
+                                                <option value="desc">Descending</option>
+                                                <option value="asc">Ascending</option>
+                                            </select>
+
+                                            <!--<input th:if="${#request.getParameter('start') != null}" type="hidden" name="start" th:value="${start}">
+                                            <input th:if="${#request.getParameter('limit') != null}" type="hidden" name="limit" th:value="${limit}">-->
+                                            <input th:if="${#request.getParameter('search') != null}" name="search" type="hidden" th:value="${#request.getParameter('search')[0]}">
+                                            <div style="display: none;" class="form-check" th:each="prevTags:${param.tagId}">
+                                                <input checked class="form-check-input" type="checkbox" name="tagId" th:value="${prevTags}">
+                                            </div>
+                                            <div style="display: none;" class="form-check" th:each="prevAuthorId:${param.authorId}">
+                                                <input checked class="form-check-input" type="checkbox" name="authorId" th:value="${prevAuthorId}">
+                                            </div>
+                                            <input th:if="${#request.getParameter('publishedStart') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedStart')[0]}">
+                                            <input th:if="${#request.getParameter('publishedEnd') != null}" type="hidden" name="publishedAt" th:value="${#request.getParameter('publishedEnd')[0]}">
+
+                                            <input type="submit" class="btn-save btn btn-danger btn-sm" value="Sort">
+                                        </form>
+                                    </li>
+                                </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Widget -->
+            <div class="card my-4">
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+<footer class="py-5 bg-dark">
+    <div class="container">
+  
+    </div>
+    <!-- /.container -->
+</footer>
+
+<!-- Bootstrap core JavaScript -->
+<script th:src="@{/jquery/bootstrap/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
+<script>
+    $('select').selectpicker();
+</script>
+
+</body>
+</html>
